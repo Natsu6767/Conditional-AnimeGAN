@@ -2,16 +2,16 @@ import csv
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-load-path', default='data/tags_clean.csv', help='Path to csv data file.')
-parser.add_argument('-save-path', default='data/clean_labels.csv', help="Path to save cleaned data.")
+parser.add_argument('-load_path', default='data/tags_clean.csv', help='Path to csv data file.')
+parser.add_argument('-save_path', default='data/clean_labels.csv', help="Path to save cleaned data.")
 
 args = parser.parse_args()
 
-with open(arg.save-path, 'w') as g:
-writer = csv.writer(g)
-writer.writerow(["image_name", "eyes", "hair"])
+with open(args.save_path, 'w') as g:
+    writer = csv.writer(g)
+    writer.writerow(["image_name", "eyes", "hair"])
 
-with open(args.load-path, 'r') as f:
+    with open(args.load_path, 'r') as f:
         for ridx, row in enumerate(csv.reader(f)):
             tags = row[1].split('\t')
             attrib = {'eyes': '<UNK>', 'hair': '<UNK>'}
@@ -29,7 +29,6 @@ with open(args.load-path, 'r') as f:
                         continue
                     if(w == 'eyes' or w == 'hair'):
                         attrib[w] = s_tag[0]
-                        print(s_tag[0])
             
             writer.writerow([ridx, attrib['eyes'], attrib['hair']])
 

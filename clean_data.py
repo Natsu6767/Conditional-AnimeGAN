@@ -1,11 +1,15 @@
 import csv
+import json
 import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-load_path', default='data/tags_clean.csv', help='Path to csv data file.')
 parser.add_argument('-save_path', default='data/clean_labels.csv', help="Path to save cleaned data.")
+parser.add_argument('-json_save_path', default='data/animegan_params.json', help="Path to save json.")
 
 args = parser.parse_args()
+
+word_counts = {}
 
 with open(args.save_path, 'w') as g:
     writer = csv.writer(g)
@@ -29,6 +33,16 @@ with open(args.save_path, 'w') as g:
                         continue
                     if(w == 'eyes' or w == 'hair'):
                         attrib[w] = s_tag[0]
+                        word_counts[s_tag[0]] = word_counts.get(s_tag[0], 0) + 1
             
             writer.writerow([ridx, attrib['eyes'], attrib['hair']])
+
+# Store the mapping for the words as a json
+word_counts_sorted = sorted(word_counts.items(), key=lambda kv: kv[1], reverse=True)
+vocab = [color[0] for color in word_counts_sorted]
+
+word2ind = {color: color_ind + 1 for color_ind, color in enumerate(vocab)}
+
+with open(args.json_save_path, 'w') as fp:
+    json.dump(word2ind, fp)
 

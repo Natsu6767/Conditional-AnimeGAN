@@ -42,6 +42,7 @@ with open(args.save_path, 'w') as g:
             writer.writerow([ridx, attrib['eyes'], attrib['hair']])
 
 # Store the mapping for the words as a json
+color_counts['<UNK>'] = args.color_count_threshold
 color_counts_sorted = sorted(color_counts.items(), key=lambda kv: kv[1], reverse=True)
 
 vocab = [color[0] for color in color_counts_sorted if color[1] >= args.color_count_threshold]

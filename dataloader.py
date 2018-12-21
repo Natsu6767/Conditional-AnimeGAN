@@ -5,76 +5,85 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 
-from skimage import io, transform
+from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
 from six import iteritems
 
 class AnimeDataset(Dataset):
-	"""Anime Dataset"""
+    """Anime Dataset"""
 
-	def __init__(self, csv_file, root_dir, param_file, transform=None):
-		self.color_frame = pd.read_csv(csv_file)
-		self.root_dir = root_dir
-		self.transform = transform
-		self.param_file = param_file
+    def __init__(self, csv_file, root_dir, param_file, transform):
+        self.color_frame = pd.read_csv(csv_file)
+        self.root_dir = root_dir
+        self.transform = transform
+        self.param_file = param_file
 
-		with open(self.param_file, 'r') as info_file:
-			info = json.load(info_file)
+        with open(self.param_file, 'r') as info_file:
+            info = json.load(info_file)
 
-			for key, value in iteritems(info):
-				setattr(self, key, value)
+            for key, value in iteritems(info):
+                setattr(self, key, value)
 
-		color_count = len(self.color2ind)
-		self.color2ind['<S>'] = color_count + 1
-		self.color2ind['</S>'] = color_count + 2
-		self.start_token = self.color2ind['<S>']
-		self.end_token = self.color2ind['</S>']
+        color_count = len(self.color2ind)
+        self.color2ind['<S>'] = color_count + 1
+        self.color2ind['</S>'] = color_count + 2
+        self.start_token = self.color2ind['<S>']
+        self.end_token = self.color2ind['</S>']
 
-		self.ind2color = {
-		    int(ind): color
-		    for color, ind in iteritems(self.color2ind)
-		}
+        self.ind2color = {
+            int(ind): color
+            for color, ind in iteritems(self.color2ind)
+        }
 
-	def __len__(self):
-		return len(self.color_frame)
+    def __len__(self):
+        return len(self.color_frame)
 
-	def __getitem__(self, idx):
-		img_name = os.path.join(self.root_dir,
-		                        str(self.color_frame.iloc[idx, 0])+".jpg")
+    def __getitem__(self, idx):
+        img_path = os.path.join(self.root_dir,
+                                str(self.color_frame.iloc[idx, 0])+".jpg")
 
-		image = io.imread(img_name)
-		colors = self.color_frame.iloc[idx, 1:].values
-		colors = [self.color2ind[color] for color in colors]
+        image = Image.open(img_path)
+        colors = self.color_frame.iloc[idx, 1:].values
+        colors = [self.color2ind[color] for color in colors]
+        colors = torch.IntTensor(colors)
 
+        transformed_images = self.transform(image)
 
-		sample = {'image': image, 'colors': colors}
+        sample = {'image': transformed_images, 'colors': colors}
 
-		if self.transform:
-			sample = self.transform(sample)
+        return sample 
 
-		return sample
 
 """
+transform = transforms.Compose([
+    transforms.Resize(64),
+    transforms.CenterCrop(64),
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5),
+        (0.5, 0.5, 0.5))])
+
 anime_dataset = AnimeDataset(csv_file='data/clean_labels.csv',
-	                         root_dir='data/faces/',
-	                         param_file='data/animegan_params.json')
+                             root_dir='data/faces/',
+                             param_file='data/animegan_params.json',
+                             transform=transform)
 
-fig = plt.figure()
+dataloader = DataLoader(anime_dataset, batch_size=4,
+                        shuffle=True, num_workers=4)
 
-for i in range(len(anime_dataset)):
-	sample = anime_dataset[i]
+for i_batch, sample_batched in enumerate(dataloader):
+    print(i_batch, sample_batched['image'].size(),
+          sample_batched['colors'].shape)
 
-	print(i, sample['image'].shape, sample['colors'])
+    # observe 4th batch and stop.
+    if i_batch == 3:
+        print(sample_batched['colors'])
+        plt.figure()
+        grid = utils.make_grid(sample_batched['image'])
+        plt.imshow(grid.numpy().transpose(1, 2, 0))
+        plt.axis('off')
+        plt.ioff()
+        plt.show()
 
-	ax = plt.subplot(1, 4, i+1)
-	plt.tight_layout()
-	plt.imshow(sample['image'])
-	ax.set_title('Sample #{}'.format(i))
-	ax.axis('off')
-
-	if i ==3:
-		print(sample)
-		plt.show()
-		break
+        break
 """

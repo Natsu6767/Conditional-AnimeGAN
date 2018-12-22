@@ -15,7 +15,7 @@ class Generator(nn.Module):
     def __init__(self, params):
         super().__init__()
 
-        self.label_embed = nn.Embedding(params['vocab_size'], params['embedding_size'])
+        #self.label_embed = nn.Embedding(params['vocab_size'], params['embedding_size'])
 
         # Input is the latent vector Z.
         self.tconv1_1 = nn.ConvTranspose2d(params['nz'], params['ngf']*8, 
@@ -29,7 +29,7 @@ class Generator(nn.Module):
         self.bn1_2 = nn.BatchNorm2d(params['ngf']*8)
 
         # Input Dimension: (ngf*8) x 4 x 4
-        self.tconv2 = nn.ConvTranspose2d(params['ngf']*8, params['ngf']*4,
+        self.tconv2 = nn.ConvTranspose2d(params['ngf']*16, params['ngf']*4,
             4, 2, 1, bias=False)
         self.bn2 = nn.BatchNorm2d(params['ngf']*4)
 
@@ -49,17 +49,17 @@ class Generator(nn.Module):
         #Output Dimension: (nc) x 64 x 64
 
     def forward(self, x, labels):
-        batch_size, _ = labels.size()
+        batch_size = labels.size(0)
         z = x
 
-        labels_embed = self.label_embed(labels)
+        #labels_embed = self.label_embed(labels)
         #labels_embed = labels_embed.view(batch_size, 1, 1, -1)
         #labels_embed = torch.transpose(labels_embed, 1, 3)
         
         #input_encoding = torch.cat((x, labels_embed), dim=1)
 
         x = F.relu(self.bn1_1(self.tconv1_1(x)))
-        y = F.relu(self.bn1_2(self.tconv1_2(labels_embed)))
+        y = F.relu(self.bn1_2(self.tconv1_2(labels)))
 
         x = torch.cat((x, y), dim=1)
 
@@ -76,7 +76,7 @@ class Discriminator(nn.Module):
     def __init__(self, params):
         super().__init__()
 
-        self.label_embed = nn.Embedding(params['vocab_size'], params['embedding_size']) 
+        #self.label_embed = nn.Embedding(params['vocab_size'], params['embedding_size']) 
 
         # Input Dimension: (nc) x 64 x 64
         self.conv1_1 = nn.Conv2d(params['nc'], params['ndf'],
@@ -86,7 +86,7 @@ class Discriminator(nn.Module):
             4, 2, 1, bias=False)
 
         # Input Dimension: (ndf) x 32 x 32
-        self.conv2 = nn.Conv2d(params['ndf'], params['ndf']*2,
+        self.conv2 = nn.Conv2d(params['ndf']*2, params['ndf']*2,
             4, 2, 1, bias=False)
         self.bn2 = nn.BatchNorm2d(params['ndf']*2)
 
@@ -103,15 +103,15 @@ class Discriminator(nn.Module):
         # Input Dimension: (ndf*8) x 4 x 4
         self.conv5 = nn.Conv2d(params['ndf']*8, 1, 4, 1, 0, bias=False)
 
-    def forward(self, x, labels):
-        batch_size, _ = labels.size()
+    def forward(self, x, labels, params):
+        batch_size = labels.size(0)
         img = x
 
-        labels_embed = self.label_embed(labels)
-        labels_embed_fill = labels_embed.repeat(1, 1, params['imsize'], params['imsize'])
+        #labels_embed = self.label_embed(labels)
+        labels_fill = labels.repeat(1, 1, params['imsize'], params['imsize'])
 
         x = F.leaky_relu(self.conv1_1(x), 0.2, True)
-        y = F.leaky_relu(self.conv1_2(labels_embed_fill), 0.2, True)
+        y = F.leaky_relu(self.conv1_2(labels_fill), 0.2, True)
 
         x = torch.cat((x, y), dim=1)
 

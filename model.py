@@ -3,12 +3,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 def weights_init(w):
-	classname = w.__class__.__name__
-	if classname.find('conv') != -1:
-		nn.init.normal_(w.weight.data, 0.0, 0.02)
-	elif classname.find('bn') != -1:
-		nn.init.normal_(w.weight.data, 1.0, 0.02)
-		nn.init.constant_(w.bias.data, 0)
+    classname = w.__class__.__name__
+    if classname.find('conv') != -1:
+        nn.init.normal_(w.weight.data, 0.0, 0.02)
+    elif classname.find('bn') != -1:
+        nn.init.normal_(w.weight.data, 1.0, 0.02)
+        nn.init.constant_(w.bias.data, 0)
 
 # Define the Generator Network
 class Generator(nn.Module):
@@ -19,8 +19,8 @@ class Generator(nn.Module):
 
         # Input is the latent vector Z.
         self.tconv1_1 = nn.ConvTranspose2d(params['nz'], params['ngf']*8, 
-        	                               kernel_size=4, stride=1, 
-        	                               padding=0, bias=False)
+                                           kernel_size=4, stride=1, 
+                                           padding=0, bias=False)
         self.tconv1_2 = nn.ConvTranspose2d(params['n_conditions']*params['embedding_size'],
                                            params['ngf']*8, kernel_size=4, stride=1, 
                                            padding=0, bias=False)
@@ -49,12 +49,12 @@ class Generator(nn.Module):
         #Output Dimension: (nc) x 64 x 64
 
     def forward(self, x, labels):
-    	batch_size, _ = labels.size()
-    	z = x
+        batch_size, _ = labels.size()
+        z = x
 
-    	labels_embed = self.label_embed(labels)
-    	#labels_embed = labels_embed.view(batch_size, 1, 1, -1)
-    	#labels_embed = torch.transpose(labels_embed, 1, 3)
+        labels_embed = self.label_embed(labels)
+        #labels_embed = labels_embed.view(batch_size, 1, 1, -1)
+        #labels_embed = torch.transpose(labels_embed, 1, 3)
         
         #input_encoding = torch.cat((x, labels_embed), dim=1)
 
@@ -104,11 +104,11 @@ class Discriminator(nn.Module):
         self.conv5 = nn.Conv2d(params['ndf']*8, 1, 4, 1, 0, bias=False)
 
     def forward(self, x, labels):
-    	batch_size, _ = labels.size()
-    	img = x
+        batch_size, _ = labels.size()
+        img = x
 
-    	labels_embed = self.label_embed(labels)
-    	labels_embed_fill = labels_embed.repeat(1, 1, params['imsize'], params['imsize'])
+        labels_embed = self.label_embed(labels)
+        labels_embed_fill = labels_embed.repeat(1, 1, params['imsize'], params['imsize'])
 
         x = F.leaky_relu(self.conv1_1(x), 0.2, True)
         y = F.leaky_relu(self.conv1_2(labels_embed_fill), 0.2, True)

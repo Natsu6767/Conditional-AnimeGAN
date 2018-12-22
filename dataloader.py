@@ -45,8 +45,8 @@ class AnimeDataset(Dataset):
 
         image = Image.open(img_path)
         colors = self.color_frame.iloc[idx, 1:].values
-        colors = [self.color2ind[color] for color in colors]
-        colors = torch.IntTensor(colors)
+        colors = [self.color2ind.get(color, self.color2ind['<UNK>']) for color in colors]
+        colors = torch.LongTensor(colors)
 
         transformed_images = self.transform(image)
 

@@ -119,6 +119,7 @@ class Discriminator(nn.Module):
         x = F.leaky_relu(self.bn3(self.conv3(x)), 0.2, True)
         x = F.leaky_relu(self.bn4(self.conv4(x)), 0.2, True)
 
-        x = F.sigmoid(self.conv5(x))
+        #x = F.sigmoid(self.conv5(x))
+        x = self.conv5(x)
 
         return x

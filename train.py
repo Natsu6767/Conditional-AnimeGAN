@@ -30,7 +30,8 @@ params = {
     'nepochs' : 10,# Number of training epochs.
     'lr' : 0.0002,# Learning rate for optimizers
     'beta1' : 0.5,# Beta1 hyperparam for Adam optimizer
-    'save_epoch' : 2}# Save step.
+    'save_epoch' : 2,# Save step.
+    'n_critic' : 5}#Number of iterations to train discriminator before training generator.
 
 # Use GPU is available else use CPU.
 device = torch.device("cuda:0" if(torch.cuda.is_available()) else "cpu")
@@ -144,7 +145,8 @@ for epoch in range(params['nepochs']):
         # Create labels for the real data. (label=1)
         label = torch.full((b_size, ), real_label, device=device)
         output = netD(real_images, condition, params).view(-1)
-        errD_real = criterion(output, label)
+        #errD_real = criterion(output, label)
+        errD_real = -(torch.mean(output))
         # Calculate gradients for backpropagation.
         errD_real.backward()
         D_x = output.mean().item()
@@ -162,7 +164,8 @@ for epoch in range(params['nepochs']):
         # This is done because the loss functions for the discriminator
         # and the generator are slightly different.
         output = netD(fake_data.detach(), condition, params).view(-1)
-        errD_fake = criterion(output, label)
+        #errD_fake = criterion(output, label)
+        errD_fake = torch.mean(output)
         # Calculate gradients for backpropagation.
         errD_fake.backward()
         D_G_z1 = output.mean().item()
@@ -171,26 +174,32 @@ for epoch in range(params['nepochs']):
         errD = errD_real + errD_fake
         # Update discriminator parameters.
         optimizerD.step()
-        
-        # Make accumalted gradients of the generator zero.
-        netG.zero_grad()
-        # We want the fake data to be classified as real. Hence
-        # real_label are used. (label=1)
-        label.fill_(real_label)
-        # No detach() is used here as we want to calculate the gradients w.r.t.
-        # the generator this time.
-        output = netD(fake_data, condition, params).view(-1)
-        errG = criterion(output, label)
-        # Gradients for backpropagation are calculated.
-        # Gradients w.r.t. both the generator and the discriminator
-        # parameters are calculated, however, the generator's optimizer
-        # will only update the parameters of the generator. The discriminator
-        # gradients will be set to zero in the next iteration by netD.zero_grad()
-        errG.backward()
 
-        D_G_z2 = output.mean().item()
-        # Update generator parameters.
-        optimizerG.step()
+        # Weight clipping for discriminator weights.
+        for p in netD.parameters():
+            p.data.clamp_(-0.01, 0.01)
+        
+        if(i % 5 == 0):
+            # Make accumalted gradients of the generator zero.
+            netG.zero_grad()
+            # We want the fake data to be classified as real. Hence
+            # real_label are used. (label=1)
+            label.fill_(real_label)
+            # No detach() is used here as we want to calculate the gradients w.r.t.
+            # the generator this time.
+            output = netD(fake_data, condition, params).view(-1)
+            #errG = criterion(output, label)
+            errG = -torch.mean(output)
+            # Gradients for backpropagation are calculated.
+            # Gradients w.r.t. both the generator and the discriminator
+            # parameters are calculated, however, the generator's optimizer
+            # will only update the parameters of the generator. The discriminator
+            # gradients will be set to zero in the next iteration by netD.zero_grad()
+            errG.backward()
+
+            D_G_z2 = output.mean().item()
+            # Update generator parameters.
+            optimizerG.step()
 
         # Check progress of training.
         if i%50 == 0:

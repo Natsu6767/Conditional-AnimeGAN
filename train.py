@@ -109,7 +109,8 @@ frow8 = torch.cat((torch.ones(8, 1)*color2ind['blue'], torch.ones(8, 1)*color2in
 fixed_condition = torch.cat((frow1, frow2, frow3, frow4, frow5,
                                 frow6, frow7, frow8), dim=0).type(torch.LongTensor)
 
-fixed_condition_ohe = torch.cat((onehot[fixed_condition[:, 0]], onehot[fixed_condition[:, 1]]), dim=1).to(device)
+fixed_condition_ohe1 = onehot[fixed_condition[:, 0]].to(device)
+fixed_condition_ohe2 = onehot[fixed_condition[:, 1]].to(device)
 
 real_label = 1
 fake_label = 0
@@ -136,7 +137,8 @@ for epoch in range(params['nepochs']):
         # Transfer data tensor to GPU/CPU (device)
         real_images = data['image'].to(device)
         y = data['colors']
-        condition = torch.cat((onehot[y[:, 0]], onehot[y[:, 1]]), dim=1).to(device)
+        condition1 = onehot[y[:, 0]].to(device)
+        condition2 = onehot[y[:, 1]].to(device)
         # Get batch size. Can be different from params['nbsize'] for last batch in epoch.
         b_size = real_images.size(0)
         
@@ -144,7 +146,7 @@ for epoch in range(params['nepochs']):
         netD.zero_grad()
         # Create labels for the real data. (label=1)
         label = torch.full((b_size, ), real_label, device=device)
-        output = netD(real_images, condition, params).view(-1)
+        output = netD(real_images, condition1, condition2, params).view(-1)
         #errD_real = criterion(output, label)
         errD_real = -(torch.mean(output))
         # Calculate gradients for backpropagation.
@@ -154,7 +156,7 @@ for epoch in range(params['nepochs']):
         # Sample random data from a unit normal distribution.
         noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
         # Generate fake data (images).
-        fake_data = netG(noise, condition)
+        fake_data = netG(noise, condition1, condition2)
         # Create labels for fake data. (label=0)
         label.fill_(fake_label)
         # Calculate the output of the discriminator of the fake data.
@@ -163,7 +165,7 @@ for epoch in range(params['nepochs']):
         # discriminator parameters will be calculated.
         # This is done because the loss functions for the discriminator
         # and the generator are slightly different.
-        output = netD(fake_data.detach(), condition, params).view(-1)
+        output = netD(fake_data.detach(), condition1, condition2, params).view(-1)
         #errD_fake = criterion(output, label)
         errD_fake = torch.mean(output)
         # Calculate gradients for backpropagation.
@@ -187,7 +189,7 @@ for epoch in range(params['nepochs']):
             label.fill_(real_label)
             # No detach() is used here as we want to calculate the gradients w.r.t.
             # the generator this time.
-            output = netD(fake_data, condition, params).view(-1)
+            output = netD(fake_data, condition1, condition2, params).view(-1)
             #errG = criterion(output, label)
             errG = -torch.mean(output)
             # Gradients for backpropagation are calculated.
@@ -215,7 +217,7 @@ for epoch in range(params['nepochs']):
         # Check how the generator is doing by saving G's output on a fixed noise.
         if (iters % 100 == 0) or ((epoch == params['nepochs']-1) and (i == len(dataloader)-1)):
             with torch.no_grad():
-                fake_data = netG(fixed_noise, fixed_condition_ohe).detach().cpu()
+                fake_data = netG(fixed_noise, fixed_condition_ohe1, fixed_condition_ohe2).detach().cpu()
             img_list.append(vutils.make_grid(fake_data, padding=2, normalize=True))
 
         iters += 1

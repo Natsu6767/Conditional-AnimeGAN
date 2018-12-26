@@ -102,7 +102,7 @@ frow1 = torch.cat((torch.ones(6, 1)*color2ind['brown'], torch.ones(6, 1)*color2i
 frow2 = torch.cat((torch.ones(6, 1)*color2ind['blue'], torch.ones(6, 1)*color2ind['blue']), dim=1)
 frow3 = torch.cat((torch.ones(6, 1)*color2ind['red'], torch.ones(6, 1)*color2ind['green']), dim=1)
 frow4 = torch.cat((torch.ones(6, 1)*color2ind['purple'], torch.ones(6, 1)*color2ind['orange']), dim=1)
-frow5 = torch.cat((torch.ones(6, 1)*color2ind['green'], torch.ones(6, 1)*color2ind['gray']), dim=1)
+frow5 = torch.cat((torch.ones(6, 1)*color2ind['green'], torch.ones(6, 1)*color2ind['purple']), dim=1)
 frow6 = torch.cat((torch.ones(6, 1)*color2ind['aqua'], torch.ones(6, 1)*color2ind['pink']), dim=1)
 fixed_condition = torch.cat((frow1, frow2, frow3, frow4, frow5,
                                 frow6), dim=0).type(torch.LongTensor)
@@ -145,8 +145,8 @@ for epoch in range(params['nepochs']):
         # Make accumalated gradients of the discriminator zero.
         netD.zero_grad()
         # Create labels for the real data. (label=1)
-        label = torch.full((b_size, ), real_label, device=device)
-        #label = torch.rand((b_size, ), device=device)*(1.1 - 0.9) + 0.9
+        #label = torch.full((b_size, ), real_label, device=device)
+        label = torch.rand((b_size, ), device=device)*(1.2 - 0.8) + 0.8
 
         output = netD(real_images, condition1, condition2, params).view(-1)
         errD_real = criterion(output, label)
@@ -181,16 +181,16 @@ for epoch in range(params['nepochs']):
         optimizerD.step()
 
         # Weight clipping for discriminator weights.
-        #for p in netD.parameters():
-        #    p.data.clamp_(-0.01, 0.01)
+        for p in netD.parameters():
+            p.data.clamp_(-0.015, 0.015)
         
         if(True):
             # Make accumalted gradients of the generator zero.
             netG.zero_grad()
             # We want the fake data to be classified as real. Hence
             # real_label are used. (label=1)
-            label.fill_(real_label)
-            #label = torch.rand((b_size, ), device=device)*(1.1 - 0.9) + 0.9
+            #label.fill_(real_label)
+            label = torch.rand((b_size, ), device=device)*(1.2 - 0.8) + 0.8
             # No detach() is used here as we want to calculate the gradients w.r.t.
             # the generator this time.
             output = netD(fake_data, condition1, condition2, params).view(-1)
@@ -235,7 +235,7 @@ for epoch in range(params['nepochs']):
             }, 'checkpoint/model_epoch_{}.pth'.format(epoch))
         plt.figure(figsize=(6, 6))
         plt.axis("off")
-        plt.title("Testing")
+        plt.title("Epoch_{}".format(epoch))
         with torch.no_grad():
             fake_data = netG(fixed_noise, fixed_condition_ohe1, fixed_condition_ohe2).detach().cpu()
         img_save = plt.imshow(np.transpose(vutils.make_grid(fake_data, nrow=6, padding=2, normalize=True).cpu(), (1, 2, 0)))
@@ -249,6 +249,13 @@ torch.save({
             'optimizerD' : optimizerD.state_dict(),
             'params' : params
             }, 'checkpoint/model_final.pth')
+plt.figure(figsize=(6, 6))
+plt.axis("off")
+plt.title("Epoch_{}".format(params['nepochs']))
+with torch.no_grad():
+    fake_data = netG(fixed_noise, fixed_condition_ohe1, fixed_condition_ohe2).detach().cpu()
+img_save = plt.imshow(np.transpose(vutils.make_grid(fake_data, nrow=6, padding=2, normalize=True).cpu(), (1, 2, 0)))
+img_save.figure.savefig('Epoch_final')
 
 # Plot the training losses.
 plt.figure(figsize=(10,5))
@@ -268,6 +275,3 @@ anim = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, bli
 #plt.show()
 anim.save('anime80.gif', dpi=80, writer='imagemagick')
 anim.save('anime100.gif', dpi=100, writer='imagemagick')
-
-import os
-os.system('shutdown -s')

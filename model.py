@@ -18,22 +18,22 @@ class Generator(nn.Module):
         #self.label_embed = nn.Embedding(params['vocab_size'], params['embedding_size'])
 
         # Input is the latent vector Z.
-        self.tconv1_1 = nn.ConvTranspose2d(params['nz'], params['ngf']*8, 
+        self.tconv1_1 = nn.ConvTranspose2d(params['nz'] + params['embedding_size']*params['n_conditions'], params['ngf']*8, 
                                            kernel_size=4, stride=1, 
                                            padding=0, bias=False)
-        self.tconv1_2 = nn.ConvTranspose2d(params['embedding_size']*params['n_conditions'],
-                                           params['ngf']*8, kernel_size=4, stride=1, 
-                                           padding=0, bias=False)
+        #self.tconv1_2 = nn.ConvTranspose2d(params['embedding_size']*params['n_conditions'],
+        #                                   params['ngf']*8, kernel_size=4, stride=1, 
+        #                                   padding=0, bias=False)
         #self.tconv1_3 = nn.ConvTranspose2d(params['embedding_size'],
         #                                   params['ngf']*8, kernel_size=4, stride=1, 
         #                                   padding=0, bias=False)
         
         self.bn1_1 = nn.BatchNorm2d(params['ngf']*8)
-        self.bn1_2 = nn.BatchNorm2d(params['ngf']*8)
+        #self.bn1_2 = nn.BatchNorm2d(params['ngf']*8)
         #self.bn1_3 = nn.BatchNorm2d(params['ngf']*8)
 
         # Input Dimension: (ngf*8) x 4 x 4
-        self.tconv2 = nn.ConvTranspose2d(params['ngf']*16, params['ngf']*4,
+        self.tconv2 = nn.ConvTranspose2d(params['ngf']*8, params['ngf']*4,
             4, 2, 1, bias=False)
         self.bn2 = nn.BatchNorm2d(params['ngf']*4)
 
@@ -62,13 +62,14 @@ class Generator(nn.Module):
         
         #input_encoding = torch.cat((x, labels_embed), dim=1)
         y = torch.cat((y1, y2), dim=1)
+        x = torch.cat((x, y1, y2), dim=1)
 
         x = F.leaky_relu(self.bn1_1(self.tconv1_1(x)), 0.2, True)
         #y1 = F.leaky_relu(self.bn1_2(self.tconv1_2(y1)), 0.2, True)
         #y2 = F.leaky_relu(self.bn1_3(self.tconv1_3(y2)), 0.2, True)
 
-        y = F.leaky_relu(self.bn1_2(self.tconv1_2(y)), 0.2, True)
-        x = torch.cat((x, y), dim=1)
+        #y = F.leaky_relu(self.bn1_2(self.tconv1_2(y)), 0.2, True)
+        #x = torch.cat((x, y), dim=1)
 
         x = F.leaky_relu(self.bn2(self.tconv2(x)), 0.2, True)
         x = F.leaky_relu(self.bn3(self.tconv3(x)), 0.2, True)

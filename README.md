@@ -1,6 +1,5 @@
 # Conditional AnimeGAN
 PyTorch implementation of conditional Generative Adversarial Network (cGAN) for Anime face generation conditioned on eye color and hair color.
-
 <p align="center">
 <img src="images/Generated_Anime_Faces.gif" title="Generated Data Animation" alt="Generated Data Animation">
 </p>
@@ -47,14 +46,20 @@ python3 evaluate.py -load_path /path/to/pth/checkpoint -num_output n -eye_color 
 
 ### Some Generated Samples:
 **Blue Eyes Blonde Hair<br />
-<img src="images/Blue-Blonde.gif" height="128" width="170" title="Blue Eyes Blonde Hair" alt="Blue Eyes Blonde Hair"><br />
+<img src="images/Blue-Blonde.png" height="128" width="170" title="Blue Eyes Blonde Hair" alt="Blue Eyes Blonde Hair"><br />
 Red Eyes Blonde Hair<br />
 <img src="images/Red-Green.png" height="128" width="170" title="Red Eyes Green Hair" alt="Red Eyes Green Hair"><br />
 Green Eyes Purple Hair<br />
 <img src="images/Green-Purple.png" height="128" width="170" title="Green Eyes Purple Hair" alt="Green Eyes Purple Hair"><br />
 Red Eyes Green Hair<br />
-<img src="images/Red-Green.gif" height="128" width="170" title="Red Eyes Green Hair" alt="Red Eyes Green Hair"><br />
+<img src="images/Red-Green.png" height="128" width="170" title="Red Eyes Green Hair" alt="Red Eyes Green Hair"><br />
 Aqua Eyes Pink Hair<br />
 <img src="images/Aqua-Pink.png" height="128" width="170" title="Aqua Eyes Pink Hair" alt="Aqua Eyes Pink Hair"><br />
 Red Eyes Purple Hair<br />**
 <img src="images/Red-Green.png" height="128" width="170" title="Red Eyes Green Hair" alt="Red Eyes Green Hair">
+
+## References
+1. **Mehdi Mirza, Simon Osindero.** *Conditional Generative Adversarial Nets.*[[arxiv](https://arxiv.org/abs/1411.1784)]
+2. **Scott Reed, Zeynep Akata, Xinchen Yan, Lajanugen Logeswaran, Bernt Schiele, Honglak Lee.** *Generative Adversarial Text to Image Synthesis*[[arxiv](https://arxiv.org/abs/1411.1784)]
+3. **m516825/Conditional-GAN** [[repo](https://github.com/m516825/Conditional-GAN)]
+4. **soumith/ganhacks** [[repo](https://github.com/soumith/ganhacks)]

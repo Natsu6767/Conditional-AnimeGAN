@@ -48,10 +48,10 @@ class Generator(nn.Module):
 
     def forward(self, x, y1, y2):
         
-        y1 = F.leaky_relu(self.fc_embed1(y1), 0.2, True)
-        y2 = F.leaky_relu(self.fc_embed2(y2), 0.2, True)
+        y1 = F.leaky_relu(self.fc_embed1(y1.squeeze()), 0.2, True)
+        y2 = F.leaky_relu(self.fc_embed2(y2.squeeze()), 0.2, True)
 
-        x = torch.cat((x, y1, y2), dim=1)
+        x = torch.cat((x, y1.view(y1.size(0), y1.size(1), 1, 1), y2.view(y2.size(0), y2.size(1), 1, 1)), dim=1)
 
         x = F.leaky_relu(self.bn1(self.tconv1(x)), 0.2, True)
 
@@ -88,7 +88,7 @@ class Discriminator(nn.Module):
         self.bn4 = nn.BatchNorm2d(params['ndf']*8)
 
         # Input Dimension: (ndf*8) x 4 x 4
-        self.conv5 = nn.Conv2d(params['ndf']*8 + 128*2, params['ndf']*8, 4, 1, 0, bias=False)
+        self.conv5 = nn.Conv2d(params['ndf']*8 + 128*2, params['ndf']*8, 1, 1, 0, bias=False)
         self.bn5 = self.bn5 = nn.BatchNorm2d(params['ndf']*8)
 
         self.conv6 = nn.Conv2d(params['ndf']*8, 1, 4, 1, 0, bias=False)
@@ -96,7 +96,7 @@ class Discriminator(nn.Module):
         self.fc_embed1 = nn.Linear(params['embedding_size'], 128, bias=False)
         self.fc_embed2 = nn.Linear(params['embedding_size'], 128, bias=False)
 
-    def forward(self, x, y1, y2, params):
+    def forward(self, x, y1, y2):
         img = x
 
         x = F.leaky_relu(self.conv1(x), 0.2, True)
@@ -104,12 +104,13 @@ class Discriminator(nn.Module):
         x = F.leaky_relu(self.bn3(self.conv3(x)), 0.2, True)
         x = F.leaky_relu(self.bn4(self.conv4(x)), 0.2, True)
 
-        y1 = F.leaky_relu(self.fc_embed1(y1), 0.2, True)
-        y2 = F.leaky_relu(self.fc_embed2(y2), 0.2, True)
+        y1 = F.leaky_relu(self.fc_embed1(y1.squeeze()), 0.2, True)
+        y2 = F.leaky_relu(self.fc_embed2(y2.squeeze()), 0.2, True)
         y = torch.cat((y1, y2), dim=1)
+        y = y.view(y.size(0), y.size(1), 1, 1)
 
         y_fill = y.repeat(1, 1, 4, 4)
-        x = torch.cat((x, y), dim=1)
+        x = torch.cat((x, y_fill), dim=1)
 
         x = F.leaky_relu(self.bn5(self.conv5(x)), 0.2, True)
         x = F.sigmoid(self.conv6(x))

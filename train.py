@@ -154,7 +154,7 @@ for epoch in range(params['nepochs']):
         label = torch.rand((b_size, ), device=device)*(1.2 - 0.8) + 0.8
 
         # Real Image, Correct Conditions
-        output = netD(real_images, r_condition1, r_condition2, params).view(-1)
+        output = netD(real_images, r_condition1, r_condition2).view(-1)
         errD_real = criterion(output, label)
         # Calculate gradients for backpropagation.
         errD_real.backward()
@@ -175,14 +175,14 @@ for epoch in range(params['nepochs']):
         # and the generator are slightly different.
         
         # Fake Image, Correct Condition
-        output = netD(fake_data.detach(), r_condition1, r_condition2, params).view(-1)
+        output = netD(fake_data.detach(), r_condition1, r_condition2).view(-1)
         errD_fake1 = criterion(output, label) / 2
         # Calculate gradients for backpropagation.
         errD_fake1.backward()
         D_G_z1 = output.mean().item()
 
         # Real Image, Wrong Conditions.
-        output = netD(real_images, w_condition1, w_condition2, params).view(-1)
+        output = netD(real_images, w_condition1, w_condition2).view(-1)
         label.fill_(fake_label)
         errD_fake2 = criterion(output, label) / 2
         #Calculate gradients for backpropagation
@@ -207,7 +207,7 @@ for epoch in range(params['nepochs']):
             label = torch.rand((b_size, ), device=device)*(1.2 - 0.8) + 0.8
             # No detach() is used here as we want to calculate the gradients w.r.t.
             # the generator this time.
-            output = netD(fake_data, condition1, condition2, params).view(-1)
+            output = netD(fake_data, r_condition1, r_condition2).view(-1)
             errG = criterion(output, label)
             #errG = -torch.mean(output)
             # Gradients for backpropagation are calculated.

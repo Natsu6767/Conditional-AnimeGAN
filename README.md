@@ -7,7 +7,7 @@ PyTorch implementation of conditional Generative Adversarial Network (cGAN) for 
 You can download the dataset from the following [repo](https://github.com/m516825/Conditional-GAN).
 
 ## Training
-Download the data and place it in the data/ directory. (Optional) Run **`prepro.py`** to clean and preprocess the data. Run **`train.py`** to start training. To change the hyperparameters of the network, update the values in the `param` dictionary insdie `train.py`.
+Download the data and place it in the data/ directory. *(Optional) Run **`prepro.py`** to clean and preprocess the data.* Run **`train.py`** to start training. To change the hyperparameters of the network, update the values in the `param` dictionary insdie `train.py`.
 Checkpoints will be saved by default in the `checkpoint` directory every 2 epochs.
 By deafult, GPU will be used for training if available. *(Training on CPU is not recommended)*
 

@@ -51,7 +51,7 @@ class Generator(nn.Module):
         y1 = F.leaky_relu(self.fc_embed1(y1.squeeze()), 0.2, True)
         y2 = F.leaky_relu(self.fc_embed2(y2.squeeze()), 0.2, True)
 
-        x = torch.cat((x, y1.view(y1.size(0), y1.size(1), 1, 1), y2.view(y2.size(0), y2.size(1), 1, 1)), dim=1)
+        x = torch.cat((x, y1.view(-1, 128, 1, 1), y2.view(-1, 128, 1, 1)), dim=1)
 
         x = F.leaky_relu(self.bn1(self.tconv1(x)), 0.2, True)
 

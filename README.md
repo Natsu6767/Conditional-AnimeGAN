@@ -4,6 +4,13 @@ PyTorch implementation of conditional Generative Adversarial Network (cGAN) for 
 <img src="images/Generated_Anime_Faces.gif" title="Generated Data Animation" alt="Generated Data Animation">
 </p>
 
+**Row-1:** *Brown* Eyes *Blonde* Hair<br />
+**Row-2:** *Blue* Eyes *Blue* Hair<br />
+**Row-3:** *Red* Eyes *Green* Hair<br />
+**Row-4:** *Purple* Eyes *Orange* Hair<br />
+**Row-5:** *Green* Eyes *Purple* Hair<br />
+**Row-6:** *Aqua* Eyes *Pink* Hair
+
 You can download the dataset from the following [repo](https://github.com/m516825/Conditional-GAN).
 
 ## Training

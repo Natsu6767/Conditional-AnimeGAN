@@ -250,6 +250,7 @@ for epoch in range(params['nepochs']):
         plt.figure(figsize=(6, 6))
         plt.axis("off")
         plt.title("Epoch_{}".format(epoch))
+        # Visualize output on fixed noise and conditions.
         with torch.no_grad():
             fake_data = netG(fixed_noise, fixed_condition_ohe1, fixed_condition_ohe2).detach().cpu()
         img_save = plt.imshow(np.transpose(vutils.make_grid(fake_data, nrow=6, padding=2, normalize=True).cpu(), (1, 2, 0)))
@@ -266,6 +267,7 @@ torch.save({
 plt.figure(figsize=(6, 6))
 plt.axis("off")
 plt.title("Epoch_{}".format(params['nepochs']))
+# Visualize output on fixed noise and conditions.
 with torch.no_grad():
     fake_data = netG(fixed_noise, fixed_condition_ohe1, fixed_condition_ohe2).detach().cpu()
 img_save = plt.imshow(np.transpose(vutils.make_grid(fake_data, nrow=6, padding=2, normalize=True).cpu(), (1, 2, 0)))

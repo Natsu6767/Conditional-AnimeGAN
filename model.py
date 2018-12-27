@@ -87,10 +87,11 @@ class Discriminator(nn.Module):
             4, 2, 1, bias=False)
         self.bn4 = nn.BatchNorm2d(params['ndf']*8)
 
-        # Input Dimension: (ndf*8) x 4 x 4
+        # Input Dimension: (ndf*8)+128*2 x 4 x 4
         self.conv5 = nn.Conv2d(params['ndf']*8 + 128*2, params['ndf']*8, 1, 1, 0, bias=False)
         self.bn5 = self.bn5 = nn.BatchNorm2d(params['ndf']*8)
 
+        # Input Dimensions: (ndf*8) x 4 x 4
         self.conv6 = nn.Conv2d(params['ndf']*8, 1, 4, 1, 0, bias=False)
 
         self.fc_embed1 = nn.Linear(params['embedding_size'], 128, bias=False)

@@ -53,37 +53,3 @@ class AnimeDataset(Dataset):
         sample = {'image': transformed_images, 'colors': colors}
 
         return sample 
-
-
-"""
-transform = transforms.Compose([
-    transforms.Resize(64),
-    transforms.CenterCrop(64),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5),
-        (0.5, 0.5, 0.5))])
-
-anime_dataset = AnimeDataset(csv_file='data/clean_labels.csv',
-                             root_dir='data/faces/',
-                             param_file='data/animegan_params.json',
-                             transform=transform)
-
-dataloader = DataLoader(anime_dataset, batch_size=4,
-                        shuffle=True, num_workers=4)
-
-for i_batch, sample_batched in enumerate(dataloader):
-    print(i_batch, sample_batched['image'].size(),
-          sample_batched['colors'].shape)
-
-    # observe 4th batch and stop.
-    if i_batch == 3:
-        print(sample_batched['colors'])
-        plt.figure()
-        grid = utils.make_grid(sample_batched['image'])
-        plt.imshow(grid.numpy().transpose(1, 2, 0))
-        plt.axis('off')
-        plt.ioff()
-        plt.show()
-
-        break
-"""

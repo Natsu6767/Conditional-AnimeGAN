@@ -108,7 +108,7 @@ class Discriminator(nn.Module):
         y2 = F.leaky_relu(self.fc_embed2(y2), 0.2, True)
         y = torch.cat((y1, y2), dim=1)
 
-        y_fill = torch,repeat(1, 1, 4, 4)
+        y_fill = y.repeat(1, 1, 4, 4)
         x = torch.cat((x, y), dim=1)
 
         x = F.leaky_relu(self.bn5(self.conv5(x)), 0.2, True)

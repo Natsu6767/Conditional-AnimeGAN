@@ -27,7 +27,7 @@ params = {
     'nz' : 100,# Size of the Z latent vector (the input to the generator).
     'ngf' : 64,# Size of feature maps in the generator. The depth will be multiples of this.
     'ndf' : 64, # Size of features maps in the discriminator. The depth will be multiples of this.
-    'nepochs' : 100,# Number of training epochs.
+    'nepochs' : 10,# Number of training epochs.
     'lr' : 0.0002,# Learning rate for optimizers
     'beta1' : 0.5,# Beta1 hyperparam for Adam optimizer
     'save_epoch' : 10,# Save step.
@@ -114,8 +114,6 @@ real_label = 1
 fake_label = 0
 
 # Optimizer for the discriminator.
-#optimizerG = optim.RMSprop(netG.parameters(), lr=params['lr'])
-#optimizerD = optim.RMSprop(netD.parameters(), lr=params['lr'])
 optimizerD = optim.Adam(netD.parameters(), lr=params['lr'], betas=(params['beta1'], 0.999))
 # Optimizer for the generator.
 optimizerG = optim.Adam(netG.parameters(), lr=params['lr'], betas=(params['beta1'], 0.999))
@@ -137,8 +135,15 @@ for epoch in range(params['nepochs']):
         # Transfer data tensor to GPU/CPU (device)
         real_images = data['image'].to(device)
         y = data['colors']
-        condition1 = onehot[y[:, 0]].to(device)
-        condition2 = onehot[y[:, 1]].to(device)
+        # Correct Conditions
+        r_condition1 = onehot[y[:, 0]].to(device)
+        r_condition2 = onehot[y[:, 1]].to(device)
+
+        # Wrong Conditions
+        idx = torch.randperm(r_condition1.nelement())
+        w_condition1 = r_condition1.view(-1)[idx].view(r_condition1.size())
+        idx = torch.randperm(r_condition2.nelement())
+        w_condition2 = r_condition2.view(-1)[idx].view(r_condition2.size())
         # Get batch size. Can be different from params['nbsize'] for last batch in epoch.
         b_size = real_images.size(0)
         
@@ -148,9 +153,9 @@ for epoch in range(params['nepochs']):
         #label = torch.full((b_size, ), real_label, device=device)
         label = torch.rand((b_size, ), device=device)*(1.2 - 0.8) + 0.8
 
-        output = netD(real_images, condition1, condition2, params).view(-1)
+        # Real Image, Correct Conditions
+        output = netD(real_images, r_condition1, r_condition2, params).view(-1)
         errD_real = criterion(output, label)
-        #errD_real = -(torch.mean(output))
         # Calculate gradients for backpropagation.
         errD_real.backward()
         D_x = output.mean().item()
@@ -158,7 +163,7 @@ for epoch in range(params['nepochs']):
         # Sample random data from a unit normal distribution.
         noise = torch.randn(b_size, params['nz'], 1, 1, device=device)
         # Generate fake data (images).
-        fake_data = netG(noise, condition1, condition2)
+        fake_data = netG(noise, r_condition1, r_condition2)
         # Create labels for fake data. (label=0)
         label.fill_(fake_label)
         #label = torch.rand((b_size, ), device=device)*(0.2 - 0.0) + 0.0
@@ -168,21 +173,30 @@ for epoch in range(params['nepochs']):
         # discriminator parameters will be calculated.
         # This is done because the loss functions for the discriminator
         # and the generator are slightly different.
-        output = netD(fake_data.detach(), condition1, condition2, params).view(-1)
-        errD_fake = criterion(output, label)
-        #errD_fake = torch.mean(output)
+        
+        # Fake Image, Correct Condition
+        output = netD(fake_data.detach(), r_condition1, r_condition2, params).view(-1)
+        errD_fake1 = criterion(output, label) / 2
         # Calculate gradients for backpropagation.
-        errD_fake.backward()
+        errD_fake1.backward()
         D_G_z1 = output.mean().item()
 
+        # Real Image, Wrong Conditions.
+        output = netD(real_images, w_condition1, w_condition2, params).view(-1)
+        label.fill_(fake_label)
+        errD_fake2 = criterion(output, label) / 2
+        #Calculate gradients for backpropagation
+        errD_fake2.backward()
+
         # Net discriminator loss.
+        errD_fake = errD_fake1 + errD_fake2
         errD = errD_real + errD_fake
         # Update discriminator parameters.
         optimizerD.step()
 
         # Weight clipping for discriminator weights.
-        for p in netD.parameters():
-            p.data.clamp_(-0.015, 0.015)
+        #for p in netD.parameters():
+        #    p.data.clamp_(-0.015, 0.015)
         
         if(True):
             # Make accumalted gradients of the generator zero.

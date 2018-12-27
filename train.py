@@ -27,7 +27,7 @@ params = {
     'nz' : 100,# Size of the Z latent vector (the input to the generator).
     'ngf' : 64,# Size of feature maps in the generator. The depth will be multiples of this.
     'ndf' : 64, # Size of features maps in the discriminator. The depth will be multiples of this.
-    'nepochs' : 25,# Number of training epochs.
+    'nepochs' : 50,# Number of training epochs.
     'lr' : 0.0002,# Learning rate for optimizers
     'beta1' : 0.5,# Beta1 hyperparam for Adam optimizer
     'save_epoch' : 10,# Save step.
@@ -140,10 +140,10 @@ for epoch in range(params['nepochs']):
         r_condition2 = onehot[y[:, 1]].to(device)
 
         # Wrong Conditions
-        idx = torch.randperm(r_condition1.size(0))
-        w_condition1 = r_condition1.[idx].view(r_condition1.size())
-        idx = torch.randperm(r_condition2.size(0))
-        w_condition2 = r_condition2.[idx].view(r_condition2.size())
+        idx = torch.randperm(r_condition1.nelement())
+        w_condition1 = r_condition1.view(-1)[idx].view(r_condition1.size())
+        idx = torch.randperm(r_condition2.nelement())
+        w_condition2 = r_condition2.view(-1)[idx].view(r_condition2.size())
         # Get batch size. Can be different from params['nbsize'] for last batch in epoch.
         b_size = real_images.size(0)
         

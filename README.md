@@ -14,7 +14,7 @@ By deafult, GPU will be used for training if available. *(Training on CPU is not
 
 **Loss Curve**
 <p align="center">
-<img src="images/loss_curve.png" title="Training Loss Curves" alt="Training Loss Curves">
+<img src="images/Loss_Curve.png" title="Training Loss Curves" alt="Training Loss Curves">
 </p>
 <i>D: Discriminator, G: Generator</i>
 
@@ -44,8 +44,17 @@ python3 evaluate.py -load_path /path/to/pth/checkpoint -num_output n -eye_color 
 <td><img src = 'images/Epoch_50.png'>
 </tr>
 </table>
-Some Generated Samples: <br />
-- Blue Eyes Blonde Hair ![image]()
-- Green Eyes Purple Hair ![image]()
-- Aqua Eyes Pink Hair ![image]()
-- Red Eyes Green Hair ![image]()
+
+### Some Generated Samples:
+**Blue Eyes Blonde Hair<br />
+<img src="images/Blue-Blonde.gif" height="128" width="170" title="Blue Eyes Blonde Hair" alt="Blue Eyes Blonde Hair"><br />
+Red Eyes Blonde Hair<br />
+<img src="images/Red-Green.png" height="128" width="170" title="Red Eyes Green Hair" alt="Red Eyes Green Hair"><br />
+Green Eyes Purple Hair<br />
+<img src="images/Green-Purple.png" height="128" width="170" title="Green Eyes Purple Hair" alt="Green Eyes Purple Hair"><br />
+Red Eyes Green Hair<br />
+<img src="images/Red-Green.gif" height="128" width="170" title="Red Eyes Green Hair" alt="Red Eyes Green Hair"><br />
+Aqua Eyes Pink Hair<br />
+<img src="images/Aqua-Pink.png" height="128" width="170" title="Aqua Eyes Pink Hair" alt="Aqua Eyes Pink Hair"><br />
+Red Eyes Purple Hair<br />**
+<img src="images/Red-Green.png" height="128" width="170" title="Red Eyes Green Hair" alt="Red Eyes Green Hair">

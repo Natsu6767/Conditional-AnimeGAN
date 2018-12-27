@@ -46,22 +46,23 @@ onehot = torch.zeros(params['vocab_size'], params['vocab_size'])
 onehot = onehot.scatter_(1, torch.LongTensor([i for i in range(params['vocab_size'])]).view(params['vocab_size'], 1), 1).view(params['vocab_size'], params['vocab_size'], 1, 1)
 
 # Create input conditions vectors.
-eye_condition = torch.ones(9, 1)*color2ind(args.eye_color)
-hair_condition = torch.ones(9, 1)*color2ind(args.hair_color)
+input_condition = torch.cat((torch.ones(int(args.num_output), 1)*color2ind[args.eye_color], 
+                            torch.ones(int(args.num_output), 1)*color2ind[args.hair_color]),
+                            dim=1).type(torch.LongTensor)
 
 # Generate the onehot embeddings for the conditions.
-eye_ohe = onehot(eye_condition).to(device)
-hair_ohe = onehot(hair_condition).to(device)
+eye_ohe = onehot[input_condition[:, 0]].to(device)
+hair_ohe = onehot[input_condition[:, 1]].to(device)
 
 # Turn off gradient calculation to speed up the process.
 with torch.no_grad():
-	# Get generated image from the noise vector using
-	# the trained generator.
+    # Get generated image from the noise vector using
+    # the trained generator.
     generated_img = netG(noise, eye_ohe, hair_ohe).detach().cpu()
 
 # Display the generated image.
 plt.axis("off")
 plt.title("Generated Images")
-plt.imshow(np.transpose(vutils.make_grid(generated_img, nrow=int(np.sqrt(params.num_output)) padding=2, normalize=True), (1,2,0)))
+plt.imshow(np.transpose(vutils.make_grid(generated_img, nrow=int(np.sqrt(int(args.num_output))), padding=2, normalize=True), (1,2,0)))
 
 plt.show()

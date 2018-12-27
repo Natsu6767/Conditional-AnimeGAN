@@ -59,7 +59,7 @@ Red Eyes Purple Hair<br />**
 <img src="images/Red-Purple.png" height="128" width="170" title="Red Eyes Purple Hair" alt="Red Eyes Purple Hair">
 
 ## References
-1. **Mehdi Mirza, Simon Osindero.** *Conditional Generative Adversarial Nets.*[[arxiv](https://arxiv.org/abs/1411.1784)]
-2. **Scott Reed, Zeynep Akata, Xinchen Yan, Lajanugen Logeswaran, Bernt Schiele, Honglak Lee.** *Generative Adversarial Text to Image Synthesis*[[arxiv](https://arxiv.org/abs/1411.1784)]
+1. **Mehdi Mirza, Simon Osindero.** *Conditional Generative Adversarial Nets.* [[arxiv](https://arxiv.org/abs/1411.1784)]
+2. **Scott Reed, Zeynep Akata, Xinchen Yan, Lajanugen Logeswaran, Bernt Schiele, Honglak Lee.** *Generative Adversarial Text to Image Synthesis.* [[arxiv](https://arxiv.org/abs/1411.1784)]
 3. **m516825/Conditional-GAN** [[repo](https://github.com/m516825/Conditional-GAN)]
 4. **soumith/ganhacks** [[repo](https://github.com/soumith/ganhacks)]
